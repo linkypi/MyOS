@@ -1,0 +1,127 @@
+<?xml version='1.0' ?>  <Setting>
+    <bochsCommandHistory>
+      <bochsCommandHistory>u /10</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x7c3b</bochsCommandHistory>
+      <bochsCommandHistory>s</bochsCommandHistory>
+      <bochsCommandHistory>u /20</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x7c42</bochsCommandHistory>
+      <bochsCommandHistory>u /5 ox7cda</bochsCommandHistory>
+      <bochsCommandHistory>u /5 0x7cda</bochsCommandHistory>
+      <bochsCommandHistory>u /5 0x7cca</bochsCommandHistory>
+      <bochsCommandHistory>U /10 0x7d35</bochsCommandHistory>
+      <bochsCommandHistory>U /10 0x7d30</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x7d32</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x7d35</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x7cf0</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x7d28</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x7d50</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x90120</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x9012a</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x90138</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x90180</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x90175</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x90170</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x90160</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x90165</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x7d2f</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x7d65</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x7d78</bochsCommandHistory>
+      <bochsCommandHistory>u /0x903ae</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x903ae</bochsCommandHistory>
+      <bochsCommandHistory>u /10 0x904a0</bochsCommandHistory>
+    </bochsCommandHistory>
+    <breakpoint/>
+    <currentLanguage>en_US</currentLanguage>
+    <customZone>false</customZone>
+    <divX>324</divX>
+    <divY>161</divY>
+    <fontFamily>Dialog</fontFamily>
+    <fontsize>12</fontsize>
+    <gdt/>
+    <height>654</height>
+    <hitZone>false</hitZone>
+    <idt/>
+    <interruptProfiling>false</interruptProfiling>
+    <jmpProfiling>false</jmpProfiling>
+    <lastElfHistoryOpenDir>/home/lxq/Desktop/orange/chapter4/c/find/.</lastElfHistoryOpenDir>
+    <lastElfHistoryOpenDir2>/home/lxq/Desktop/orange/chapter4/c/find/.</lastElfHistoryOpenDir2>
+    <lastMapOpenDir>/home/lxq/Desktop/orange/chapter4/c/find/.</lastMapOpenDir>
+    <ldt/>
+    <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
+    <loadSystemMapAtStartup>false</loadSystemMapAtStartup>
+    <logToPetersoftServer>false</logToPetersoftServer>
+    <memoryCombo>
+      <memoryCombo>0x0x7df6</memoryCombo>
+      <memoryCombo>0x7c00</memoryCombo>
+      <memoryCombo>0x7d1e</memoryCombo>
+      <memoryCombo>0x7dbf</memoryCombo>
+      <memoryCombo>0x7df2</memoryCombo>
+      <memoryCombo>0x7df3</memoryCombo>
+      <memoryCombo>0x7df4</memoryCombo>
+      <memoryCombo>0x7df5</memoryCombo>
+      <memoryCombo>0x7df6</memoryCombo>
+      <memoryCombo>0x7dfa</memoryCombo>
+      <memoryCombo>0x800</memoryCombo>
+      <memoryCombo>0x8000</memoryCombo>
+      <memoryCombo>0x80000</memoryCombo>
+      <memoryCombo>0x8f000</memoryCombo>
+      <memoryCombo>0x900</memoryCombo>
+      <memoryCombo>0x90000</memoryCombo>
+      <memoryCombo>0x90100</memoryCombo>
+      <memoryCombo>0x901a0</memoryCombo>
+      <memoryCombo>0x901c0</memoryCombo>
+      <memoryCombo>0x90200</memoryCombo>
+      <memoryCombo>0x90280</memoryCombo>
+      <memoryCombo>0x902b8</memoryCombo>
+      <memoryCombo>0x902bd</memoryCombo>
+      <memoryCombo>0x902c2</memoryCombo>
+      <memoryCombo>0x902e7</memoryCombo>
+      <memoryCombo>0x902e8</memoryCombo>
+      <memoryCombo>0x902ed</memoryCombo>
+      <memoryCombo>0x90300</memoryCombo>
+      <memoryCombo>0x90500</memoryCombo>
+      <memoryCombo>0x9100</memoryCombo>
+      <memoryCombo>0x9120</memoryCombo>
+      <memoryCombo>0x9200</memoryCombo>
+      <memoryCombo>0x9300</memoryCombo>
+      <memoryCombo>0x97de7</memoryCombo>
+      <memoryCombo>0x97de8</memoryCombo>
+    </memoryCombo>
+    <memoryEnd/>
+    <memoryProfiling>false</memoryProfiling>
+    <memoryStart/>
+    <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
+    <path_dwarfdump/>
+    <path_objdump/>
+    <physicalAddress/>
+    <profileMemoryFromAddress/>
+    <profileMemoryToAddress/>
+    <profilingUpdateGraph>false</profilingUpdateGraph>
+    <register/>
+    <sbAddress/>
+    <sbaAddress/>
+    <tss/>
+    <updateAfterBochsCommand>false</updateAfterBochsCommand>
+    <updateAfterBochsCommand_addressTranslate>false</updateAfterBochsCommand_addressTranslate>
+    <updateAfterBochsCommand_breakpoint>false</updateAfterBochsCommand_breakpoint>
+    <updateAfterBochsCommand_gdt>false</updateAfterBochsCommand_gdt>
+    <updateAfterBochsCommand_history>false</updateAfterBochsCommand_history>
+    <updateAfterBochsCommand_idt>false</updateAfterBochsCommand_idt>
+    <updateAfterBochsCommand_instruction>false</updateAfterBochsCommand_instruction>
+    <updateAfterBochsCommand_ldt>false</updateAfterBochsCommand_ldt>
+    <updateAfterBochsCommand_memory>false</updateAfterBochsCommand_memory>
+    <updateAfterBochsCommand_pageTable>false</updateAfterBochsCommand_pageTable>
+    <updateAfterBochsCommand_register>false</updateAfterBochsCommand_register>
+    <updateAfterBochsCommand_stack>false</updateAfterBochsCommand_stack>
+    <updateFastStepCommand_breakpoint>false</updateFastStepCommand_breakpoint>
+    <updateFastStepCommand_gdt>false</updateFastStepCommand_gdt>
+    <updateFastStepCommand_history>false</updateFastStepCommand_history>
+    <updateFastStepCommand_idt>false</updateFastStepCommand_idt>
+    <updateFastStepCommand_instruction>true</updateFastStepCommand_instruction>
+    <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
+    <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
+    <updateFastStepCommand_register>true</updateFastStepCommand_register>
+    <width>872</width>
+    <x>653</x>
+    <y>87</y>
+  </Setting>

@@ -1,0 +1,1 @@
+java -jar peter-bochs-debugger.jar bochs -q -f bochsrc.bxrc

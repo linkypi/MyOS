@@ -1,0 +1,18 @@
+
+boot.asm 
+   
+   0x7cd9 --> jmp finded
+   0x7d56 --> jmptoLoader
+   0x7d76 -->jmp far 9000:100
+
+Loader.asm 
+
+   0x9021f jmp finded
+   0x9025b jmp jmptoKernel
+   0x902f2 jmp protectMode
+   0x903b3 jmp kernel
+
+kernel.asm 
+   
+   0x3040c jmp cstart
+   0x30418 jmp csinit

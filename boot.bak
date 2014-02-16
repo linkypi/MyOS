@@ -1,0 +1,336 @@
+;将镜像加载到内存，每次加载一个扇区，为的是从中找到Loader.bin文件
+;找到后将其加载到内存的指定位置
+;最后跳转到该位置 将控制权交给Loader.bin
+org 07c00h     ;bios 可将引导扇区加载到0:7c00 处 并开始执行
+
+;宏定义   编译阶段宏会被删除  
+RootDirSecCount   equ  14  ;根目录所占扇区数
+SecNumOfRootDir   equ  19  ;根目录开始扇区号
+BaseOfStack       equ  07c00h  ; 堆栈基地址(栈底, 从这个位置向低地址生长)
+BaseOfLoader      equ  0900h
+OffsetOfLoader    equ  0100h
+
+;========================================================
+jmp short startx		; Start to boot.
+	nop				; 这个 nop 不可少
+
+%include "fat12hdr.inc"
+
+startx:
+mov ax,cs
+mov ds,ax
+mov es,ax
+mov ss,ax
+mov sp,BaseOfStack
+
+;清屏
+mov ah,6
+mov al,0
+mov cl,0
+mov ch,0
+mov dh,24
+mov dl,79
+mov bh,7
+int 10h
+
+;显示Booting...
+;mov ax,msg_boot
+;mov cx,10
+;call dispstr
+
+; 软驱复位
+xor ah,ah
+xor dl,dl
+int 13h  
+
+
+    mov byte [secnum],SecNumOfRootDir     ;保存根目录起始扇区号
+    mov byte [SecLoopCount],RootDirSecCount  ;循环读取扇区次数
+Read: 
+	cmp byte [SecLoopCount],0   
+	jz finish                    ;若读完14个扇区仍未找到則显示磁盘中没有Loader.bin文件     
+	dec byte [SecLoopCount]
+
+	;准备存放缓冲区 es:bx
+	mov ax,BaseOfLoader
+	mov es,ax
+	mov bx,OffsetOfLoader  
+
+    movzx ax,byte [secnum]              ; 起始扇区号
+	mov cl,1                     ; 每次读取一个扇区
+    call ReadSector              ;
+
+    cld                          ;将 DF 置为0 使得di  si按增量方式增长   
+    mov dx,0x10                   ;每个文件目录的大小为32字节，
+                                 ;一个扇区512字节  共读取16遍
+	;显示Finding...
+	;mov ax,msg_find
+	;mov cx,18
+	;call dispstr
+
+	;mov ax,BaseOfLoader
+	;mov es,ax
+    mov di,OffsetOfLoader    
+findFile:                        ;开始查找
+    
+    mov si,filename
+	mov cx,11
+cmpfilename:    ;比较文件名称 lodsb --> si 自增或自减
+    lodsb       ;ds:si 
+	cmp al,byte [es:di]
+	jnz nextfile
+    inc di
+	loop cmpfilename
+    jmp finded
+
+nextfile:       ;转到下一个文件
+    dec dx
+	cmp dx,0
+	jz  Read
+    add di,0x20
+    jmp findFile
+
+finish:
+    mov ax,msg_nofind
+	mov cx,9
+	call dispstr
+    jmp $
+
+finded:
+    ;显示字符串 
+    mov dx,0
+
+    mov cx,word [es:di+26-11]         ;获取文件开始簇号 偏移为26
+	                                  ;而文件名偏移为0占用11 byte
+	mov ax,	word [es:di+28-11]        ;保存文件大小 文件大小占4字节							  
+    mov word [fileSize],ax            ;此处只取2字节
+	push cx
+	mov ax,cx
+
+    sub ax,2         ;头两个fat值不使用
+	add ax,SecNumOfRootDir   ;根目录开始扇区号   19
+	add ax,RootDirSecCount   ;根目录占用的扇区数 14
+
+	mov cl,2 
+    call ReadSector  ;每次读取两个扇区 
+	;call saveFAT    ;保存fat值 第0个和第1个fat项始终不使用
+	                ;第二个FAT项开始表示数据区的每一个簇
+					;数据区的第一个簇号是2，不是0和1
+;####################################################################################################
+;########################       查找文件占用的扇区号    #############################################
+;####################################################################################################
+findFAT:
+    
+; 软驱复位
+xor ah,ah
+xor dl,dl
+int 13h  
+    mov ax,1                     ;FAT1 起始扇区号
+	mov cl,9                     ; 读取9个扇区
+    call ReadSector              ;
+	mov di,OffsetOfLoader  
+    ;add di,[BPB_BytsPerSec]              ;fat1从第二个扇区开始  偏移 + 0x200
+	mov ax,word [BPB_FATSz16]
+    mov byte [fatSecCount],al            ;FAT表占用的扇区数   共占用9个扇区
+	
+    mov byte [xi],0                      ;循环查找fat使用  标记是否为偶数项个字节
+    
+    mov ax,[BPB_BytsPerSec]                ;记录fat1表结束位置的偏移值
+	mov si,[BPB_FATSz16]
+	mul si    	                     ; 0x200 * 9
+	mov word [fatendoffset],ax
+
+	pop cx
+	inc cx                   ;第cx+1个为当前所找的fat值
+findF:
+    cmp di,word [fatendoffset]           ;判断fat中的9个扇区是否已全部读完
+	jae badFAT                           ;已读完則表明fat1表有误
+
+	and byte [xi],1                      ;是否为第偶数项个字节
+	                                     ;fat值占用12 bit 高地址在高位 低地址在低位 
+	jz  even                             ;第偶数项  从0开始算起
+	jnz odd                              ;第奇数项
+ 
+even:          ;第偶数项
+	mov al,byte [es:di]
+	mov ah,byte [es:di+1]
+	and ah,0x0F
+    
+	inc byte [xi]
+	dec cx
+	inc di
+	cmp cx,0   ;若是最后一个则跳转
+	jnz findF
+	jz cmpFAT
+
+odd:           ;第奇数项
+    mov al,byte [es:di]
+	and al,0xF0
+	mov ah,byte [es:di+1]
+	shr ax,4
+
+	inc byte [xi]
+	dec cx
+	add di,2   
+	cmp cx,0   ;若是最后一个则跳转
+	jnz findF
+	jz  cmpFAT 
+
+cmpFAT:          ;对比fat值 
+    cmp ax,0xFF7
+	jz  badClus
+
+	cmp ax,0xFF8    ;fat >= 0xFF8 --->当前簇为文件的最后一个簇
+	                ;fat <  0xFF8 --->当前簇为文件的下一个簇号
+				    ;相当以链表的形式存放
+	
+    jae ReadLoader  ;加载Loader
+	call saveFAT    ;保存fat值
+	jb  findFAT     ;继续查找
+
+saveFAT:       ;保存fat值 
+
+    movzx si,byte [fatCount]    ;fat个数   此处取得数组下标
+    mov cx,si
+	cmp cx,0
+	jz next
+	.go:
+	  add si,si
+	  loop .go
+	;mov si,2  ;\
+	;mul si    ; > si=2*si
+	;mov si,ax ;/
+	;pop ax
+	next:
+    mov byte [fatList+si],al  ;保存第 si 个fat值
+    inc byte [fatCount]       ;fat个数加1
+    ret
+
+;===========================================================================================
+;=================================  加载Loader到内存   =====================================
+;===========================================================================================
+ReadLoader:
+	;准备存放缓冲区 es:bx
+	;mov ax,BaseOfLoader
+	;mov es,ax
+	mov bx,OffsetOfLoader  
+    
+    mov ax,34                    ; 起始扇区号
+	mov cl,2                     ; 每次读取一个扇区
+    call ReadSector              ;
+
+    cld                          ;将 DF 置为0 使得di  si按增量方式增长   
+
+	;将控制权交给Loader
+    jmp  BaseOfLoader:OffsetOfLoader     
+
+
+;===========================================================================================
+;=================================    显示字符串   =========================================
+;===========================================================================================
+
+badClus:         ;显示Loader.bin中存在坏簇
+    mov ax,msg_bad
+	mov cx,8
+	call dispstr
+    jmp $
+
+badFAT:
+    mov ax,msg_badfat
+	mov cx,14
+	call dispstr
+    jmp $
+
+dispstr:       ;调用时需指定ax字符串,cx长度
+    ;call clear
+    mov bp,ax  ;es:bp 
+	mov ax,1301h ; AH = 13  AL = 01H
+	mov bx,000ch ;页号为0 黑底红字 BL=0ch
+	mov dl,35    ;列数
+	mov dh,12    ;行数
+	int 10h
+    ;call delay
+	ret
+
+
+
+;delay:     ;在虚拟机下执行60000*600次循环
+           ;相当于6秒钟，而实际情况可能会快2-3倍
+ ;   mov dx,60000
+;	.for1:
+;	;mov ax,10
+;	;.for2:
+ ;   mov cx,400  
+;	.go:
+;	   dec cx
+ ;      cmp cx,0
+;	   jnz .go
+;
+;	;dec ax
+;	;cmp ax,0
+;	;jnz .for2
+;
+ ;   dec dx
+  ;  cmp dx,0
+   ; jnz .for1
+    ;ret
+
+;===========================================================================================
+;=================================    读取扇区     =========================================
+;===========================================================================================
+ReadSector: ;读取磁盘  从第AX个扇区开始 将cl个扇区读入到ES：BX中
+	;扇区号为X
+	;                      |柱面号 = y >> 1
+	;      X         |商 y |
+	;-------------=>-|     |磁头号 = y & 1 
+	;                |
+	;                |余 z => 起始扇区号 = z + 1
+    push bp
+	mov bp,sp
+	sub esp,2    ;劈出两个字节的堆栈区保存要读的扇区数：byte [bp-2]
+
+	mov byte [bp-2],cl
+	push bx  
+	mov bl,[BPB_SecPerTrk] ; bl是除数  BPB_SecPerTrk=每磁道扇区数
+    div bl    ;低8位为商  高8位为余数
+	inc ah    ;余数+1
+	mov cl,ah ;cl->起始扇区号
+	mov dh,al
+	shr al,1  
+	mov ch,al ;柱面号
+    and dh,1  ;磁头号
+	pop bx    
+    ;至此  柱面号，起始扇区，磁头号 全部就绪
+	mov dl,[BS_DrvNum]  ;驱动器号
+.goon:
+    mov ah,2            ;读
+	mov al,byte [bp-2]  ;读 al 个扇区
+	int 13h
+	jc .goon            ;如果读取错误 CF 会被置为 1，这时会不停的读 直到正确为止
+
+	add esp,2
+	pop bp
+
+	ret
+
+;若将字符串放在开头則计算机会将字符串视为指令来执行
+filename          db   "LOADER  BIN",0   ;文件名为11字节
+msg_nofind        db   "No Loader",0
+;msg_finded        db   "Loader .......",0
+;msg_boot          db   "Booting...",0
+;msg_find          db   "Finding Loader ...",0
+msg_bad           db   "Bad clus",0
+msg_badfat        db   "Fat damaged...",0
+secnum            db   0             ;扇区号
+SecLoopCount      db   14            ;根目录所占扇区数
+fatSecCount       db   0             ;fat占用的扇区数
+xi                db   0             ;循环查找fat值时使用
+fatCount          db   0             ;Loader.bin占用fat值的个数
+fatList  times  2 db   0             ;fat值列表  2个
+fatendoffset      dw   0             ;fat1表结尾处的偏移值
+fileSize          dw   0             ;loader.bin文件的大小 
+
+times  510-($-$$)  db  0 ; 填充剩下的空间 使生成的二进制代码恰好为512字节
+dw     0xaa55            ;引导扇区结束标志
+
+
